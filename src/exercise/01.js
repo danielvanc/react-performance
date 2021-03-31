@@ -29,7 +29,6 @@ function App() {
             type="checkbox"
             checked={showGlobe}
             onChange={e => setShowGlobe(e.target.checked)}
-
           />
           {' show globe'}
         </label>
