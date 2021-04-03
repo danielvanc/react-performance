@@ -62,6 +62,7 @@ function App() {
 
   // Wrapped in a useMemo to speed up getItems()
   const allItems = React.useMemo(() => getItems(inputValue), [inputValue])
+
   const items = allItems.slice(0, 100)
 
   const {
