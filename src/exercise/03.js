@@ -21,8 +21,10 @@ function Menu({
           getItemProps={getItemProps}
           item={item}
           index={index}
-          selectedItem={selectedItem}
-          highlightedIndex={highlightedIndex}
+          // selectedItem={selectedItem}
+          // highlightedIndex={highlightedIndex}
+          isSelected={selectedItem?.id === item.id}
+          isHighlighted={highlightedIndex === index}
         >
           {item.name}
         </ListItem>
@@ -30,8 +32,8 @@ function Menu({
     </ul>
   )
 }
-// 🐨 Memoize the Menu here using React.memo
 Menu = React.memo(Menu)
+
 function isHighlight(prevProps, nextProps) {
   // These 4 lines is actually what react is doing when
   // props are being passed.
@@ -61,12 +63,14 @@ function ListItem({
   getItemProps,
   item,
   index,
-  selectedItem,
-  highlightedIndex,
+  // selectedItem,
+  isSelected,
+  // highlightedIndex,
+  isHighlighted,
   ...props
 }) {
-  const isSelected = selectedItem?.id === item.id
-  const isHighlighted = highlightedIndex === index
+  // const isSelected = selectedItem?.id === item.id
+  // const isHighlighted = highlightedIndex === index
   return (
     <li
       {...getItemProps({
@@ -81,8 +85,12 @@ function ListItem({
     />
   )
 }
-// 🐨 Memoize the ListItem here using React.memo
-ListItem = React.memo(ListItem, isHighlight)
+
+// We now don't need to pass a comparitive function because
+// we moved primitive values a level up so that when changed
+// will trigger a dom update and won't break momoisation
+ListItem = React.memo(ListItem)
+// ListItem = React.memo(ListItem, isHighlight)
 
 function App() {
   const forceRerender = useForceRerender()
