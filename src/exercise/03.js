@@ -32,6 +32,30 @@ function Menu({
 }
 // 🐨 Memoize the Menu here using React.memo
 Menu = React.memo(Menu)
+function isHighlight(prevProps, nextProps) {
+  // These 4 lines is actually what react is doing when
+  // props are being passed.
+  if (prevProps.getItemProps !== nextProps.getItemProps)
+    return false
+  if (prevProps.items !== nextProps.items)
+    return false
+  if (prevProps.index !== nextProps.index)
+    return false
+  if (prevProps.selectedItem !== nextProps.selectedItem)
+    return false
+
+    // Careful when adding your own functionality
+    // double check using the performance tab if savings are
+    // worth the extra code etc
+  if (prevProps.highlightedIndex !== nextProps.highlightedIndex) {
+    const wasPrevHighlighted = prevProps.highlightedIndex === prevProps.index;
+    const isNowHighlighted = nextProps.highlightedIndex === nextProps.index;
+
+    return wasPrevHighlighted === isNowHighlighted
+  }
+
+  return true;
+}
 
 function ListItem({
   getItemProps,
@@ -58,7 +82,7 @@ function ListItem({
   )
 }
 // 🐨 Memoize the ListItem here using React.memo
-ListItem = React.memo(ListItem)
+ListItem = React.memo(ListItem, isHighlight)
 
 function App() {
   const forceRerender = useForceRerender()
