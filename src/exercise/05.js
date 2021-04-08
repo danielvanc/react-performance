@@ -38,8 +38,15 @@ function AppProvider({children}) {
     dogName: '',
     grid: initialGrid,
   })
-  // 🐨 memoize this value with React.useMemo
-  const value = [state, dispatch]
+  // The Grid and Cell memoization isn't enough because
+  // the below state var get's equality compared after the AppProvider is
+  // re-rendered. So the state var is new each time thus everything
+  // below it, re-renders. 
+  // So by adding useMemo here, we're saying, compare it to the last
+  // if no different, don't re-render if AppProvider is re-rendered
+  // by the force re-render func, etc.
+  const value = React.useMemo(() => [state, dispatch], [state]);
+  
   return (
     <AppStateContext.Provider value={value}>
       {children}
