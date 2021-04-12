@@ -47,15 +47,10 @@ function AppProvider({children}) {
   const [state, dispatch] = React.useReducer(appReducer, {
     grid: initialGrid,
   })
-  const dog = React.useReducer(dogReducer, {
-    grid: initialGrid,
-  })
   return (
     <AppStateContext.Provider value={state}>
       <AppDispatchContext.Provider value={dispatch}>
-      <DogContext.Provider value={dog}>
         {children}
-      </DogContext.Provider>
       </AppDispatchContext.Provider>
     </AppStateContext.Provider>
   )
@@ -76,6 +71,7 @@ function useAppDispatch() {
   }
   return context
 }
+
 function useDogContext() {
   const context = React.useContext(DogContext)
   if (!context) {
@@ -83,7 +79,16 @@ function useDogContext() {
   }
   return context
 }
+    
+function DogProvider(props) {
+  const [state, dispatch] = React.useReducer(dogReducer, {
+    dogName: '',
+  })
 
+  const value = [state, dispatch]
+  return <DogContext.Provider value={value} {...props} />
+}
+    
 function Grid() {
   const dispatch = useAppDispatch()
   const [rows, setRows] = useDebouncedState(50)
@@ -123,16 +128,11 @@ function Cell({row, column}) {
 Cell = React.memo(Cell)
 
 function DogNameInput() {
-  // 🐨 replace the useAppState and useAppDispatch with a normal useState here
-  // to manage the dogName locally within this component
-  // const state = useAppState()
-  // const dispatch = useAppDispatch()
   const [state, dispatch] = useDogContext()
   const {dogName} = state
 
   function handleChange(event) {
     const newDogName = event.target.value
-    // 🐨 change this to call your state setter that you get from useState
     dispatch({type: 'TYPED_IN_DOG_INPUT', dogName: newDogName})
   }
 
@@ -158,12 +158,14 @@ function App() {
   return (
     <div className="grid-app">
       <button onClick={forceRerender}>force rerender</button>
-      <AppProvider>
         <div>
-          <DogNameInput />
-          <Grid />
+          <DogProvider>
+            <DogNameInput />
+          </DogProvider>
+          <AppProvider>
+            <Grid />
+          </AppProvider>
         </div>
-      </AppProvider>
     </div>
   )
 }
