@@ -107,28 +107,27 @@ function Grid() {
 }
 Grid = React.memo(Grid)
 
-/**
- *  So instead of re-rendering every cell, when we click on one, and
- *  even though we are memo'izing each cell, the cell will still re-render
- *  because the app state changed. So to prevent every cell comp, that
- *  could include expensive work, we can create a 'middle man' comp
- *  and have that retrieve the state. Then have the seperate cell impl
- *  take the state "IF" the state that that component, changes.
- *  While the 'Cell' component will still render all of the 'cell' comps
- *  it won't re-render every 'CellImpl', because the 'impl' only cares
- *  about if that particular cell state changes (memoized), and so
- *  only the 'cellimpl' will be re-rendered instead. Which is good
- *  because that's where expensive logic could be.
- */
-function Cell({row, column}) {
-  const state = useAppState()
-  const cell = state.grid[row][column]
 
-  return <CellImpl cell={cell} row={row} column={column} />
+
+
+
+
+
+
+function withStateSlice2(Comp, slice) {
+  const MemoComp = React.memo(Comp);
+  // Ref here is not required, just showing incase someone wants to
+  // pass a ref to the wrapper.
+  function Wrapper(props, ref) {
+    const state = useAppState()
+    return <MemoComp ref={ref} cell={slice(state, props)} {...props} />
+  }
+  Wrapper.displayName = `withStateSlice2(${Comp.displayName || Comp.name})`
+  // return React.memo(Wrapper)
+  return React.memo(React.forwardRef(Wrapper))
 }
-Cell = React.memo(Cell)
 
-function CellImpl({ cell, row, column }) {
+function Cell({ cell, row, column }) {
   const dispatch = useAppDispatch()
   const handleClick = () => dispatch({type: 'UPDATE_GRID_CELL', row, column})
   return (
@@ -144,7 +143,17 @@ function CellImpl({ cell, row, column }) {
     </button>
   )
 }
-CellImpl = React.memo(CellImpl)
+// CellImpl = React.memo(withStateSlice(CellImpl, useAppState, row, column))
+Cell = withStateSlice2(Cell, (state, {row, column}) => state.grid[row][column])
+
+
+
+
+
+
+
+
+
 
 function DogNameInput() {
   const [state, dispatch] = useDogContext()
