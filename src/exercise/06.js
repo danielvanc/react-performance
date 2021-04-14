@@ -112,15 +112,42 @@ Grid = React.memo(Grid)
 
 
 
+// Previously
+// function Cell({row, column}) {
+//   const state = useAppState()
+//   const cell = state.grid[row][column]
 
+//   return <CellImpl cell={cell} row={row} column={column} />
+// }
+// Cell = React.memo(Cell)
 
-function withStateSlice2(Comp, slice) {
+// function CellImpl({ cell, row, column }) {
+//   const dispatch = useAppDispatch()
+//   const handleClick = () => dispatch({type: 'UPDATE_GRID_CELL', row, column})
+//   return (
+//     <button
+//       className="cell"
+//       onClick={handleClick}
+//       style={{
+//         color: cell > 50 ? 'white' : 'black',
+//         backgroundColor: `rgba(0, 0, 0, ${cell / 100})`,
+//       }}
+//     >
+//       {Math.floor(cell)}
+//     </button>
+//   )
+// }
+// CellImpl = React.memo(CellImpl)
+
+// Improved with HOC
+function withStateSlice(Comp, slice) {
   const MemoComp = React.memo(Comp);
   // Ref here is not required, just showing incase someone wants to
   // pass a ref to the wrapper.
   function Wrapper(props, ref) {
     const state = useAppState()
-    return <MemoComp ref={ref} cell={slice(state, props)} {...props} />
+    const cell = slice(state, props)
+    return <MemoComp ref={ref} cell={cell} {...props} />
   }
   Wrapper.displayName = `withStateSlice2(${Comp.displayName || Comp.name})`
   // return React.memo(Wrapper)
@@ -144,7 +171,7 @@ function Cell({ cell, row, column }) {
   )
 }
 // CellImpl = React.memo(withStateSlice(CellImpl, useAppState, row, column))
-Cell = withStateSlice2(Cell, (state, {row, column}) => state.grid[row][column])
+Cell = withStateSlice(Cell, (state, {row, column}) => state.grid[row][column])
 
 
 
